@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
-import { useSession, signIn } from "next-auth/react"
+import { useUser, SignInButton } from "@clerk/nextjs"
 import { BacktestRequest } from "@/lib/api"
 
 const CANDLE_OPTIONS = [
@@ -42,8 +42,8 @@ interface Props {
 }
 
 export default function BacktestForm({ onSubmit, loading }: Props) {
-  const { data: session } = useSession()
-  const isLoggedIn = !!session?.user
+  const { isSignedIn } = useUser()
+  const isLoggedIn = !!isSignedIn
 
   const [ticker,     setTicker]     = useState("AAPL")
   const [candle,     setCandle]     = useState("1d")
@@ -172,12 +172,14 @@ export default function BacktestForm({ onSubmit, loading }: Props) {
           {loading ? "실행 중…" : "▶  백테스트 실행"}
         </button>
       ) : (
-        <button
-          type="button" onClick={() => signIn('google')}
-          className="w-full bg-gh-blue hover:opacity-90 text-white font-semibold py-2.5 rounded text-sm transition-opacity mt-2"
-        >
-          Google로 로그인 후 실행
-        </button>
+        <SignInButton mode="modal">
+          <button
+            type="button"
+            className="w-full bg-gh-blue hover:opacity-90 text-white font-semibold py-2.5 rounded text-sm transition-opacity mt-2"
+          >
+            로그인 후 실행
+          </button>
+        </SignInButton>
       )}
     </form>
   )

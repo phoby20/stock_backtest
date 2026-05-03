@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import YahooFinance from 'yahoo-finance2'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { auth } from '@clerk/nextjs/server'
 import prisma from '@/lib/db'
 
 const yahooFinance = new YahooFinance()
@@ -200,8 +199,8 @@ function computeStats(trades: Trade[], initialCapital: number, portfolio: number
 export async function POST(req: NextRequest) {
   try {
     // ── 인증 확인 ────────────────────────────────────────────
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
+    const { userId } = await auth()
+    if (!userId) {
       return NextResponse.json({ detail: '로그인이 필요합니다.' }, { status: 401 })
     }
 
@@ -289,7 +288,7 @@ export async function POST(req: NextRequest) {
     // ── 검색 이력 DB 저장 ────────────────────────────────────
     await prisma.searchHistory.create({
       data: {
-        userId:      session.user.id,
+        clerkUserId: userId,
         ticker:      ticker.toUpperCase(),
         candle,
         strategy,

@@ -1,43 +1,27 @@
 'use client'
-import { useSession, signIn, signOut } from 'next-auth/react'
-import Image from 'next/image'
+import { SignInButton, UserButton, useUser } from '@clerk/nextjs'
 
 export default function AuthButton() {
-  const { data: session, status } = useSession()
+  const { isSignedIn, user, isLoaded } = useUser()
 
-  if (status === 'loading') {
+  if (!isLoaded) {
     return <div className="w-20 h-7 bg-gh-border rounded animate-pulse" />
   }
 
-  if (session?.user) {
+  if (isSignedIn) {
     return (
       <div className="flex items-center gap-2">
-        {session.user.image && (
-          <Image
-            src={session.user.image}
-            alt={session.user.name ?? ''}
-            width={24}
-            height={24}
-            className="rounded-full"
-          />
-        )}
-        <span className="text-xs text-gh-muted hidden sm:block">{session.user.name}</span>
-        <button
-          onClick={() => signOut()}
-          className="text-xs text-gh-muted hover:text-gh-text border border-gh-border px-2 py-1 rounded transition-colors"
-        >
-          로그아웃
-        </button>
+        <span className="text-xs text-gh-muted hidden sm:block">{user.fullName}</span>
+        <UserButton />
       </div>
     )
   }
 
   return (
-    <button
-      onClick={() => signIn('google')}
-      className="text-xs bg-gh-blue hover:opacity-90 text-white font-medium px-3 py-1.5 rounded transition-opacity"
-    >
-      Google로 로그인
-    </button>
+    <SignInButton mode="modal">
+      <button className="text-xs bg-gh-blue hover:opacity-90 text-white font-medium px-3 py-1.5 rounded transition-opacity">
+        로그인
+      </button>
+    </SignInButton>
   )
 }

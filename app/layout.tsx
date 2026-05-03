@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import "./globals.css"
-import AuthProvider from "@/components/AuthProvider"
+import { ClerkProvider } from "@clerk/nextjs"
 
 export const metadata: Metadata = {
   title: "Stock Backtest",
@@ -9,10 +9,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko">
-      <body>
-        <AuthProvider>{children}</AuthProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="ko">
+        <body>{children}</body>
+      </html>
+    </ClerkProvider>
   )
 }

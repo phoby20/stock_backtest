@@ -5,7 +5,11 @@ export default function AuthButton() {
   const { isSignedIn, user, isLoaded } = useUser()
 
   if (!isLoaded) {
-    return <div className="w-20 h-7 bg-gh-border rounded animate-pulse" />
+    return (
+      <button disabled className="text-xs bg-gh-border text-gh-muted font-medium px-3 py-1.5 rounded opacity-60 cursor-not-allowed">
+        로그인
+      </button>
+    )
   }
 
   if (isSignedIn) {

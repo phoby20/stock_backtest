@@ -42,7 +42,7 @@ interface Props {
 }
 
 export default function BacktestForm({ onSubmit, loading }: Props) {
-  const { isSignedIn } = useUser()
+  const { isSignedIn, isLoaded } = useUser()
   const isLoggedIn = !!isSignedIn
 
   const [ticker,     setTicker]     = useState("AAPL")
@@ -163,7 +163,15 @@ export default function BacktestForm({ onSubmit, loading }: Props) {
         </>
       )}
 
-      {isLoggedIn ? (
+      {!isLoaded ? (
+        <button
+          disabled
+          type="button"
+          className="w-full bg-gh-border text-gh-muted font-semibold py-2.5 rounded text-sm cursor-not-allowed opacity-70 mt-2"
+        >
+          로딩 중…
+        </button>
+      ) : isLoggedIn ? (
         <button
           type="submit" disabled={loading}
           className="w-full bg-gh-merge hover:bg-gh-mergeHover disabled:bg-gh-border disabled:cursor-not-allowed

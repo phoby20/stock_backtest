@@ -13,10 +13,10 @@ function StatCard({
     positive === true  ? "text-gh-green" :
     positive === false ? "text-gh-red"   : "text-gh-text"
   return (
-    <div className="bg-gh-surface border border-gh-border rounded-lg p-4">
+    <div className="bg-gh-surface border border-gh-border rounded-lg p-3 sm:p-4">
       <p className="text-xs text-gh-muted mb-1">{label}</p>
-      <p className={`text-xl font-bold ${color}`}>{value}</p>
-      {sub && <p className="text-xs text-gh-muted mt-1">{sub}</p>}
+      <p className={`text-lg sm:text-xl font-bold ${color} truncate`}>{value}</p>
+      {sub && <p className="text-xs text-gh-muted mt-1 truncate">{sub}</p>}
     </div>
   )
 }
@@ -24,7 +24,7 @@ function StatCard({
 function ActionBadge({ action }: { action: string }) {
   const isBuy = action.startsWith("BUY")
   return (
-    <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+    <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ${
       isBuy ? "bg-gh-green/20 text-gh-green" : "bg-gh-red/20 text-gh-red"
     }`}>
       {action}
@@ -39,12 +39,13 @@ export default function BacktestResult({ result }: Props) {
   const isProfit = result.total_profit >= 0
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
+
       {/* 헤더 */}
-      <div className="border-b border-gh-border pb-4">
-        <h2 className="text-lg font-semibold text-gh-text">
+      <div className="border-b border-gh-border pb-3 sm:pb-4">
+        <h2 className="text-base sm:text-lg font-semibold text-gh-text flex flex-wrap items-baseline gap-x-2 gap-y-1">
           {result.ticker}
-          <span className="text-gh-muted font-normal text-sm ml-2">
+          <span className="text-gh-muted font-normal text-xs sm:text-sm">
             {result.candle_label} / {result.strategy_label}
           </span>
         </h2>
@@ -54,7 +55,7 @@ export default function BacktestResult({ result }: Props) {
       </div>
 
       {/* 지표 카드 */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
         <StatCard
           label="총 수익"
           value={`${isProfit ? "+" : ""}${fmt(result.total_profit)}`}
@@ -74,7 +75,7 @@ export default function BacktestResult({ result }: Props) {
         <StatCard
           label="승률"
           value={`${result.win_rate.toFixed(1)}%`}
-          positive={result.win_rate >= 50 ? true : false}
+          positive={result.win_rate >= 50}
         />
         <StatCard
           label="최대 낙폭"
@@ -85,7 +86,7 @@ export default function BacktestResult({ result }: Props) {
 
       {/* 차트 */}
       {result.chart_data && result.chart_data.length > 0 && (
-        <div className="bg-gh-surface border border-gh-border rounded-lg p-4">
+        <div className="bg-gh-surface border border-gh-border rounded-lg p-3 sm:p-4">
           <p className="text-xs font-semibold text-gh-muted uppercase tracking-wide mb-3">
             백테스트 차트
           </p>
@@ -93,7 +94,7 @@ export default function BacktestResult({ result }: Props) {
         </div>
       )}
       {result.chart_png && !result.chart_data && (
-        <div className="bg-gh-surface border border-gh-border rounded-lg p-4">
+        <div className="bg-gh-surface border border-gh-border rounded-lg p-3 sm:p-4">
           <p className="text-xs font-semibold text-gh-muted uppercase tracking-wide mb-3">
             백테스트 차트
           </p>
@@ -104,28 +105,28 @@ export default function BacktestResult({ result }: Props) {
 
       {/* 거래 내역 */}
       {result.trades.length > 0 && (
-        <div className="bg-gh-surface border border-gh-border rounded-lg p-4">
+        <div className="bg-gh-surface border border-gh-border rounded-lg p-3 sm:p-4">
           <p className="text-xs font-semibold text-gh-muted uppercase tracking-wide mb-3">
             거래 내역 ({result.trades.length}건)
           </p>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-1">
+            <table className="w-full text-xs sm:text-sm min-w-[420px]">
               <thead>
                 <tr className="border-b border-gh-border text-gh-muted text-xs">
-                  <th className="text-left py-2 pr-4 font-medium">날짜</th>
-                  <th className="text-left py-2 pr-4 font-medium">구분</th>
-                  <th className="text-right py-2 pr-4 font-medium">가격</th>
-                  <th className="text-right py-2 pr-4 font-medium">금액</th>
+                  <th className="text-left py-2 pr-3 font-medium">날짜</th>
+                  <th className="text-left py-2 pr-3 font-medium">구분</th>
+                  <th className="text-right py-2 pr-3 font-medium">가격</th>
+                  <th className="text-right py-2 pr-3 font-medium">금액</th>
                   <th className="text-right py-2 font-medium">RSI</th>
                 </tr>
               </thead>
               <tbody>
                 {result.trades.map((t: Trade, i: number) => (
                   <tr key={i} className="border-b border-gh-border/40 hover:bg-gh-base/50">
-                    <td className="py-1.5 pr-4 text-gh-muted">{t.date}</td>
-                    <td className="py-1.5 pr-4"><ActionBadge action={t.action} /></td>
-                    <td className="py-1.5 pr-4 text-right">{fmt(t.price)}</td>
-                    <td className="py-1.5 pr-4 text-right">{fmt(t.amount)}</td>
+                    <td className="py-1.5 pr-3 text-gh-muted whitespace-nowrap">{t.date}</td>
+                    <td className="py-1.5 pr-3"><ActionBadge action={t.action} /></td>
+                    <td className="py-1.5 pr-3 text-right whitespace-nowrap">{fmt(t.price)}</td>
+                    <td className="py-1.5 pr-3 text-right whitespace-nowrap">{fmt(t.amount)}</td>
                     <td className="py-1.5 text-right text-gh-muted">{t.rsi.toFixed(1)}</td>
                   </tr>
                 ))}

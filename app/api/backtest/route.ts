@@ -301,7 +301,7 @@ export async function POST(req: NextRequest) {
         rsiLookback: rsi_lookback,
         capital,
       },
-    }).catch(e => console.error('검색 이력 저장 실패:', e))
+    }).catch((e: unknown) => console.error('검색 이력 저장 실패:', e))
 
     return NextResponse.json({
       ticker:          ticker.toUpperCase(),

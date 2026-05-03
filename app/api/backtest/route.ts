@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import YahooFinance from 'yahoo-finance2'
 import { auth } from '@clerk/nextjs/server'
-import prisma from '@/lib/db'
+import { getDb } from '@/lib/db'
 
 const yahooFinance = new YahooFinance()
 
@@ -286,7 +286,7 @@ export async function POST(req: NextRequest) {
       : 'RSI'
 
     // ── 검색 이력 DB 저장 ────────────────────────────────────
-    await prisma.searchHistory.create({
+    await getDb().searchHistory.create({
       data: {
         clerkUserId: userId,
         ticker:      ticker.toUpperCase(),

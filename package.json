@@ -12,9 +12,10 @@
     "@prisma/client": "^7.8.0",
     "@prisma/extension-accelerate": "^3.0.1",
     "dotenv": "^17.4.2",
-    "next": "^14.2.0",
+    "next": "^15.5.15",
     "react": "^18",
     "react-dom": "^18",
+    "react-is": "^19.2.5",
     "recharts": "^3.8.1",
     "yahoo-finance2": "^3.14.0"
   },

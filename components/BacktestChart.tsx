@@ -12,8 +12,8 @@ interface Props {
 }
 
 const GRID   = { strokeDasharray: '3 3', stroke: '#30363d' }
-const TICK   = { fontSize: 10, fill: '#8b949e' }
-const TIP    = { background: '#161b22', border: '1px solid #30363d', fontSize: 11, color: '#c9d1d9' }
+const TICK   = { fontSize: 10, fill: '#8b949e', fontFamily: "'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif" }
+const TIP    = { background: '#161b22', border: '1px solid #30363d', fontSize: 11, color: '#c9d1d9', fontFamily: "'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif" }
 const MARGIN = { left: 0, right: 8, top: 4, bottom: 0 }
 
 function useMobile() {

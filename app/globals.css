@@ -18,3 +18,8 @@ input[type="range"] { accent-color: #58a6ff; }
 
 /* select 화살표 색 */
 select option { background: #161b22; }
+
+/* SVG(차트) 한국어 폰트 */
+svg text {
+  font-family: var(--font-noto-sans-kr), 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+}

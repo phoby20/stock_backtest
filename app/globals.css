@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: #0d1117;
+  color: #c9d1d9;
+}
+
+/* 커스텀 스크롤바 */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #0d1117; }
+::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #484f58; }
+
+/* range slider 색상 */
+input[type="range"] { accent-color: #58a6ff; }
+
+/* select 화살표 색 */
+select option { background: #161b22; }

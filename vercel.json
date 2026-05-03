@@ -1,0 +1,8 @@
+{
+  "functions": {
+    "app/api/backtest/route": {
+      "maxDuration": 30,
+      "memory": 1024
+    }
+  }
+}

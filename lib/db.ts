@@ -1,15 +1,8 @@
 import { PrismaClient } from '@prisma/client'
-import { withAccelerate } from '@prisma/extension-accelerate'
 
-type ExtendedClient = ReturnType<typeof createPrismaClient>
-const g = globalThis as unknown as { prisma?: ExtendedClient }
+const g = globalThis as unknown as { prisma?: PrismaClient }
 
-function createPrismaClient() {
-  return new PrismaClient().$extends(withAccelerate())
-}
-
-// 빌드 시가 아닌 첫 요청 때만 초기화 (lazy initialization)
-export function getDb(): ExtendedClient {
-  if (!g.prisma) g.prisma = createPrismaClient()
+export function getDb(): PrismaClient {
+  if (!g.prisma) g.prisma = new PrismaClient()
   return g.prisma
 }

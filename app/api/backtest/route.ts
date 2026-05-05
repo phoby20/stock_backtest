@@ -207,7 +207,7 @@ export async function POST(req: NextRequest) {
     const {
       ticker       = 'AAPL',
       candle       = '1d',
-      capital      = 10_000_000,
+      capital      = 1_000,
       strategy     = 'rsi-macd',
       rsi_period   = 14,
       oversold     = 30,

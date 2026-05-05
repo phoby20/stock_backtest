@@ -47,7 +47,7 @@ export default function BacktestForm({ onSubmit, loading }: Props) {
 
   const [ticker,     setTicker]     = useState("AAPL")
   const [candle,     setCandle]     = useState("1d")
-  const [capital,    setCapital]    = useState(10_000_000)
+  const [capital,    setCapital]    = useState(1_000)
   const [strategy,   setStrategy]   = useState("rsi-macd")
   const [rsiPeriod,  setRsiPeriod]  = useState(14)
   const [oversold,   setOversold]   = useState(30)
@@ -102,7 +102,7 @@ export default function BacktestForm({ onSubmit, loading }: Props) {
       <Field label="초기자본">
         <input
           type="number" value={capital} onChange={e => setCapital(Number(e.target.value))}
-          className={INPUT_CLS} min={1000} step={100000}
+          className={INPUT_CLS} min={1} step={100}
         />
       </Field>
 

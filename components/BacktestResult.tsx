@@ -13,10 +13,10 @@ function StatCard({
     positive === true  ? "text-gh-green" :
     positive === false ? "text-gh-red"   : "text-gh-text"
   return (
-    <div className="bg-gh-surface border border-gh-border rounded-lg p-3 sm:p-4">
-      <p className="text-xs text-gh-muted mb-1">{label}</p>
-      <p className={`text-lg sm:text-xl font-bold ${color} truncate`}>{value}</p>
-      {sub && <p className="text-xs text-gh-muted mt-1 truncate">{sub}</p>}
+    <div className="bg-gh-surface border border-gh-border rounded-lg p-2.5 sm:p-4">
+      <p className="text-[10px] sm:text-xs text-gh-muted mb-0.5">{label}</p>
+      <p className={`text-sm sm:text-xl font-bold ${color} truncate`}>{value}</p>
+      {sub && <p className="text-[10px] sm:text-xs text-gh-muted mt-0.5 truncate">{sub}</p>}
     </div>
   )
 }
@@ -55,7 +55,7 @@ export default function BacktestResult({ result }: Props) {
       </div>
 
       {/* 지표 카드 */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
         <StatCard
           label="총 수익"
           value={`${isProfit ? "+" : ""}${fmt(result.total_profit)}`}

@@ -27,7 +27,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gh-base text-gh-text flex flex-col">
+    <div className="h-screen bg-gh-base text-gh-text flex flex-col overflow-hidden">
 
       {/* ── 헤더 ── */}
       <header className="border-b border-gh-border px-4 lg:px-6 py-3 flex items-center gap-2 shrink-0">
@@ -51,13 +51,13 @@ export default function HomePage() {
       </header>
 
       {/* ── 바디 ── */}
-      <div className="flex flex-1 flex-col lg:flex-row lg:overflow-hidden">
+      <div className="flex flex-1 overflow-hidden flex-col lg:flex-row">
 
         {/* 사이드바 (데스크톱) / 접힘 패널 (모바일) */}
         <aside className={[
-          "bg-gh-surface border-gh-border",
-          "lg:w-72 lg:shrink-0 lg:border-r lg:overflow-y-auto lg:!block",
-          formOpen ? "block border-b" : "hidden",
+          "bg-gh-surface border-gh-border overflow-y-auto shrink-0",
+          "lg:w-72 lg:border-r",
+          formOpen ? "border-b lg:border-b-0" : "hidden lg:block",
         ].join(" ")}>
           <div className="p-4">
             <BacktestForm onSubmit={handleSubmit} loading={loading} />
@@ -66,8 +66,8 @@ export default function HomePage() {
 
         {/* 메인 결과 영역 */}
         <main className={[
-          "flex-1 overflow-y-auto p-4 lg:p-6",
-          !formOpen || "lg:block hidden", // 모바일: 폼 열려있으면 숨김
+          "flex-1 overflow-y-auto p-4 lg:p-6 w-full",
+          formOpen ? "hidden lg:block" : "",
         ].join(" ")}>
           {error && (
             <div className="bg-gh-red/10 border border-gh-red/30 text-gh-red px-4 py-3 rounded-lg mb-5 text-sm">

@@ -102,7 +102,7 @@ export default function BacktestForm({ onSubmit, loading }: Props) {
       <Field label="초기자본">
         <input
           type="number" value={capital} onChange={e => setCapital(Number(e.target.value))}
-          className={INPUT_CLS} min={1} step={100}
+          className={INPUT_CLS} min={1} max={10_000_000} step={1}
         />
       </Field>
 

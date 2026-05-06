@@ -27,7 +27,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="h-screen bg-gh-base text-gh-text flex flex-col overflow-hidden">
+    <div className="h-dvh bg-gh-base text-gh-text flex flex-col overflow-hidden">
 
       {/* ── 헤더 ── */}
       <header className="border-b border-gh-border px-4 lg:px-6 py-3 flex items-center gap-2 shrink-0">

@@ -116,7 +116,12 @@ export default function BacktestChart({ data, initialCapital }: Props) {
         <ComposedChart data={data} margin={{ ...MARGIN, bottom: 5 }}>
           <CartesianGrid {...GRID} />
           <XAxis dataKey="date" tick={TICK} tickLine={false} interval="preserveStartEnd" />
-          <YAxis tick={TICK} tickLine={false} width={yW} tickFormatter={(v) => (v / 1_000_000).toFixed(1) + 'M'} />
+          <YAxis tick={TICK} tickLine={false} width={yW} tickFormatter={(v: number) => {
+            const abs = Math.abs(v)
+            if (abs >= 1_000_000) return (v / 1_000_000).toFixed(1) + 'M'
+            if (abs >= 1_000)     return (v / 1_000).toFixed(1) + 'K'
+            return v.toFixed(0)
+          }} />
           <Tooltip contentStyle={TIP} formatter={fmtAsset} />
           <ReferenceLine y={initialCapital} stroke="#8b949e" strokeDasharray="4 2" strokeOpacity={0.7} />
           <Line type="monotone" dataKey="portfolio" stroke="#00C853" dot={false} strokeWidth={1.2} name="자산" />

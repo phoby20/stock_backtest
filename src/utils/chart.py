@@ -20,6 +20,21 @@ else:
 
 plt.rcParams["axes.unicode_minus"] = False
 
+# 어두운 테마
+plt.rcParams.update({
+    "figure.facecolor":  "#0d1117",
+    "axes.facecolor":    "#161b22",
+    "axes.edgecolor":    "#30363d",
+    "axes.labelcolor":   "#8b949e",
+    "xtick.color":       "#8b949e",
+    "ytick.color":       "#8b949e",
+    "grid.color":        "#21262d",
+    "text.color":        "#c9d1d9",
+    "legend.facecolor":  "#161b22",
+    "legend.edgecolor":  "#30363d",
+    "legend.labelcolor": "#c9d1d9",
+})
+
 
 def _build_portfolio_series(result: BacktestResult) -> pd.Series:
     df = result.signals_df

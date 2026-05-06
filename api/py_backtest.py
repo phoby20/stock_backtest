@@ -1,6 +1,6 @@
 """
 Vercel Python Serverless Function — /api/py_backtest
-matplotlib PNG 차트를 base64로 반환
+chart_data(recharts 툴팁) + chart_png(matplotlib) 동시 반환
 """
 import matplotlib
 matplotlib.use("Agg")
@@ -9,10 +9,10 @@ import sys
 import os
 import json
 import base64
+import math
 import traceback
 from http.server import BaseHTTPRequestHandler
 
-# 프로젝트 루트를 sys.path에 추가
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
@@ -27,6 +27,67 @@ CANDLE_META = {
 }
 
 
+def _safe(v):
+    """NaN/Inf → None 변환"""
+    try:
+        return None if (v is None or math.isnan(v) or math.isinf(v)) else v
+    except Exception:
+        return None
+
+
+def _build_chart_data(result, commission_rate=0.0015):
+    """signals_df로 recharts용 chart_data 생성"""
+    from src.indicators.macd import calculate_macd
+
+    df = result.signals_df.copy()
+    if "MACD" not in df.columns:
+        macd_line, signal_line, histogram = calculate_macd(df["Close"])
+        df["MACD"]        = macd_line
+        df["MACD_Signal"] = signal_line
+        df["MACD_Hist"]   = histogram
+
+    # 포트폴리오 가치 재계산
+    capital = result.initial_capital
+    shares  = 0.0
+    portfolio_values = []
+    for _, row in df.iterrows():
+        sig   = row.get("Signal", "HOLD")
+        price = row["Close"]
+        if sig == "BUY" and shares == 0 and capital > 0:
+            comm   = capital * commission_rate
+            shares = (capital - comm) / price
+            capital = 0.0
+        elif sig == "SELL" and shares > 0:
+            gross   = shares * price
+            comm    = gross * commission_rate
+            capital = gross - comm
+            shares  = 0.0
+        portfolio_values.append(round(capital + shares * price, 2))
+
+    data = []
+    for i, (date, row) in enumerate(df.iterrows()):
+        date_str = (
+            date.strftime("%Y-%m-%d %H:%M")
+            if (date.hour or date.minute)
+            else date.strftime("%Y-%m-%d")
+        )
+        rsi_val  = _safe(row.get("RSI"))
+        macd_val = _safe(row.get("MACD"))
+        sig_val  = _safe(row.get("MACD_Signal"))
+        hist_val = _safe(row.get("MACD_Hist"))
+        data.append({
+            "date":       date_str,
+            "close":      round(float(row["Close"]), 4),
+            "rsi":        round(rsi_val, 2) if rsi_val is not None else None,
+            "macd":       round(macd_val, 4) if macd_val is not None else 0,
+            "macdSignal": round(sig_val, 4)  if sig_val  is not None else 0,
+            "macdHist":   round(hist_val, 4) if hist_val is not None else 0,
+            "portfolio":  portfolio_values[i],
+            "signal":     str(row.get("Signal", "HOLD")),
+        })
+    return data
+
+
 def _run(body: dict) -> dict:
     from src.data.fetcher import fetch_historical_data
     from src.backtest.engine import run_backtest
@@ -34,17 +95,17 @@ def _run(body: dict) -> dict:
     from src.strategy.rsi_macd_strategy import generate_signals as rsi_macd_signals
     from src.strategy.rsi_strategy import generate_signals as rsi_signals
 
-    ticker       = body.get("ticker",       "AAPL")
-    candle       = body.get("candle",       "1d")
-    capital      = float(body.get("capital",      1_000))
-    strategy     = body.get("strategy",     "rsi-macd")
-    rsi_period   = int(body.get("rsi_period",   14))
-    oversold     = float(body.get("oversold",     30))
-    overbought   = float(body.get("overbought",   70))
-    macd_fast    = int(body.get("macd_fast",    12))
-    macd_slow    = int(body.get("macd_slow",    26))
-    macd_signal  = int(body.get("macd_signal",   9))
-    rsi_lookback = int(body.get("rsi_lookback", 20))
+    ticker        = body.get("ticker",        "AAPL")
+    candle        = body.get("candle",        "1d")
+    capital       = float(body.get("capital",       1_000))
+    strategy      = body.get("strategy",      "rsi-macd")
+    rsi_period    = int(body.get("rsi_period",    14))
+    oversold      = float(body.get("oversold",      30))
+    overbought    = float(body.get("overbought",    70))
+    macd_fast     = int(body.get("macd_fast",     12))
+    macd_slow     = int(body.get("macd_slow",     26))
+    macd_signal   = int(body.get("macd_signal",    9))
+    rsi_lookback  = int(body.get("rsi_lookback",  20))
     custom_period = body.get("custom_period")
 
     meta         = CANDLE_META.get(candle, {"label": candle, "max_period": "5y", "auto_lookback": 20})
@@ -80,6 +141,7 @@ def _run(body: dict) -> dict:
 
     chart_bytes = render_chart_bytes(result, candle_label=candle_label, strategy_label=strategy_label)
     chart_b64   = base64.b64encode(chart_bytes).decode()
+    chart_data  = _build_chart_data(result)
 
     trades = [
         {
@@ -110,7 +172,8 @@ def _run(body: dict) -> dict:
         "win_rate":        round(result.win_rate, 2),
         "max_drawdown":    round(result.max_drawdown, 2),
         "trades":          trades,
-        "chart_png":       chart_b64,
+        "chart_png":       chart_b64,   # matplotlib PNG (보존)
+        "chart_data":      chart_data,  # recharts용 — 툴팁 활성화
     }
 
 
@@ -142,4 +205,4 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def log_message(self, *args):
-        pass  # 서버리스 로그 억제
+        pass

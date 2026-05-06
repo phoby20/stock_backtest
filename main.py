@@ -5,10 +5,10 @@ RSI 기반 주식 자동 거래 프로그램
   - monitor : 실시간 RSI 감시 (신호 알림)
 
 사용 예시:
-  python main.py backtest --ticker AAPL
+  python main.py backtest --ticker SOXL
   python main.py backtest --ticker TSLA --candle 1h --capital 1000
-  python main.py backtest --ticker AAPL --candle 5m
-  python main.py monitor  --ticker AAPL --interval 60
+  python main.py backtest --ticker SOXL --candle 5m
+  python main.py monitor  --ticker SOXL --interval 60
   python main.py monitor  --ticker 005930.KS
 """
 
@@ -142,7 +142,7 @@ def main():
         epilog="""
 예시:
   python main.py backtest --ticker 005930.KS --candle 1d --capital 10000000
-  python main.py backtest --ticker AAPL --candle 5m --strategy rsi-macd --chart
+  python main.py backtest --ticker SOXL --candle 5m --strategy rsi-macd --chart
   python main.py monitor  --ticker 005930.KS --interval 60
   python main.py trade    --ticker 005930 --account 1234567890 --paper
   python main.py trade    --ticker 005930 --account 1234567890
@@ -153,7 +153,7 @@ def main():
 
     # ── backtest 서브커맨드 ──────────────────────────────────
     bt = sub.add_parser("backtest", help="과거 데이터로 백테스트 실행 (일봉/분봉 선택 가능)")
-    bt.add_argument("--ticker",     required=True,  help="종목 코드 (예: AAPL, 005930.KS)")
+    bt.add_argument("--ticker",     required=True,  help="종목 코드 (예: SOXL, 005930.KS)")
     bt.add_argument("--candle",     default="1h",
                     choices=["1m", "5m", "15m", "30m", "1h", "1d"],
                     help="봉 단위 (기본: 1h=시간봉 / 1m=7일 5m·15m·30m=60일 1h=2년 1d=5년)")
@@ -174,7 +174,7 @@ def main():
 
     # ── monitor 서브커맨드 ───────────────────────────────────
     mo = sub.add_parser("monitor", help="실시간 RSI 감시 및 신호 알림 (Yahoo Finance)")
-    mo.add_argument("--ticker",     required=True,  help="종목 코드 (예: AAPL, 005930.KS)")
+    mo.add_argument("--ticker",     required=True,  help="종목 코드 (예: SOXL, 005930.KS)")
     mo.add_argument("--interval",   type=int,   default=300,  help="갱신 주기 초 (기본: 300 = 5분)")
     mo.add_argument("--rsi-period", type=int,   default=14,   help="RSI 기간 (기본: 14)")
     mo.add_argument("--oversold",   type=float, default=30.0, help="매수 RSI 기준 (기본: 30)")

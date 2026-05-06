@@ -107,7 +107,7 @@ class BacktestTab(QWidget):
         gv.setSpacing(8)
 
         self.tickerEdit = QLineEdit("SOXL")
-        self.tickerEdit.setPlaceholderText("예: AAPL, 005930.KS")
+        self.tickerEdit.setPlaceholderText("예: SOXL, 005930.KS")
         gv.addWidget(form_row("종목코드", self.tickerEdit))
 
         self.candleCombo = QComboBox()

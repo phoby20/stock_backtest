@@ -44,12 +44,12 @@ export default function BacktestChart({ data, initialCapital }: Props) {
   const h4 = mobile ? 88  : 110
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-1" style={{ background: '#161b22' }}>
       {/* Panel 1: Price + buy/sell dots */}
-      <div className="relative">
+      <div className="relative" style={{ background: '#161b22' }}>
         <span className="absolute top-1 left-1 z-10 text-[9px] text-gh-muted uppercase tracking-wide select-none">종가</span>
       <ResponsiveContainer width="100%" height={h1}>
-        <ComposedChart data={data} margin={MARGIN}>
+        <ComposedChart data={data} margin={MARGIN} style={{ background: '#161b22' }}>
           <CartesianGrid {...GRID} />
           <XAxis dataKey="date" hide />
           <YAxis tick={TICK} tickLine={false} width={yW} tickFormatter={(v) => v.toLocaleString()} />
@@ -73,10 +73,10 @@ export default function BacktestChart({ data, initialCapital }: Props) {
       </div>
 
       {/* Panel 2: RSI */}
-      <div className="relative">
+      <div className="relative" style={{ background: '#161b22' }}>
         <span className="absolute top-1 left-1 z-10 text-[9px] text-gh-muted uppercase tracking-wide select-none">RSI</span>
       <ResponsiveContainer width="100%" height={h2}>
-        <ComposedChart data={data} margin={MARGIN}>
+        <ComposedChart data={data} margin={MARGIN} style={{ background: '#161b22' }}>
           <CartesianGrid {...GRID} />
           <XAxis dataKey="date" hide />
           <YAxis tick={TICK} tickLine={false} width={yW} domain={[0, 100]} ticks={[0, 30, 70, 100]} />
@@ -89,10 +89,10 @@ export default function BacktestChart({ data, initialCapital }: Props) {
       </div>
 
       {/* Panel 3: MACD */}
-      <div className="relative">
+      <div className="relative" style={{ background: '#161b22' }}>
         <span className="absolute top-1 left-1 z-10 text-[9px] text-gh-muted uppercase tracking-wide select-none">MACD</span>
       <ResponsiveContainer width="100%" height={h3}>
-        <ComposedChart data={data} margin={MARGIN}>
+        <ComposedChart data={data} margin={MARGIN} style={{ background: '#161b22' }}>
           <CartesianGrid {...GRID} />
           <XAxis dataKey="date" hide />
           <YAxis tick={TICK} tickLine={false} width={yW} tickFormatter={(v) => v.toFixed(2)} />
@@ -110,10 +110,10 @@ export default function BacktestChart({ data, initialCapital }: Props) {
       </div>
 
       {/* Panel 4: Portfolio */}
-      <div className="relative">
+      <div className="relative" style={{ background: '#161b22' }}>
         <span className="absolute top-1 left-1 z-10 text-[9px] text-gh-muted uppercase tracking-wide select-none">자산</span>
       <ResponsiveContainer width="100%" height={h4}>
-        <ComposedChart data={data} margin={{ ...MARGIN, bottom: 5 }}>
+        <ComposedChart data={data} margin={{ ...MARGIN, bottom: 5 }} style={{ background: '#161b22' }}>
           <CartesianGrid {...GRID} />
           <XAxis dataKey="date" tick={TICK} tickLine={false} interval="preserveStartEnd" />
           <YAxis tick={TICK} tickLine={false} width={yW} tickFormatter={(v: number) => {

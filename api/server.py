@@ -29,7 +29,7 @@ CANDLE_META = {
 
 
 class BacktestRequest(BaseModel):
-    ticker:       str   = "AAPL"
+    ticker:       str   = "SOXL"
     candle:       str   = "1d"
     capital:      float = 10_000_000
     strategy:     str   = "rsi-macd"

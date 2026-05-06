@@ -90,7 +90,16 @@ export default function BacktestResult({ result }: Props) {
           <p className="text-xs font-semibold text-gh-muted uppercase tracking-wide mb-3">
             백테스트 차트
           </p>
-          <BacktestChart data={result.chart_data} initialCapital={result.initial_capital} />
+          <BacktestChart
+            data={result.chart_data}
+            initialCapital={result.initial_capital}
+            ticker={result.ticker}
+            candleLabel={result.candle_label}
+            strategyLabel={result.strategy_label}
+            returnRate={result.return_rate}
+            periodStart={result.period_start}
+            periodEnd={result.period_end}
+          />
         </div>
       )}
       {result.chart_png && !result.chart_data && (

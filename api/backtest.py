@@ -1,9 +1,7 @@
-# Vercel Python Serverless Function entry point
-# Vercel이 이 파일을 /api/backtest 엔드포인트로 자동 인식합니다.
+# /api/backtest — Next.js app/api/backtest/route.ts가 우선 처리하므로
+# 이 Python 함수는 실제로 호출되지 않습니다.
+# 하지만 Vercel이 import를 시도하므로 빈 handler로 대응합니다.
 import matplotlib
-matplotlib.use("Agg")  # 디스플레이 없는 환경에서 PNG 렌더링
+matplotlib.use("Agg")
 
-from api.server import app  # FastAPI app 공유 (로직 중복 없음)
-from mangum import Mangum
-
-handler = Mangum(app, lifespan="off")
+from api.py_backtest import handler  # noqa: F401

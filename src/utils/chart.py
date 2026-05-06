@@ -1,12 +1,23 @@
 import io
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import matplotlib.font_manager as fm
 from matplotlib.gridspec import GridSpec
 from src.backtest.engine import BacktestResult
 from src.indicators.macd import calculate_macd
 
-plt.rcParams["font.family"] = "AppleGothic"
+# 번들된 NanumGothic 폰트를 우선 사용, 없으면 시스템 폰트 탐색
+_FONT_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "fonts", "NanumGothic.ttf")
+if os.path.exists(_FONT_PATH):
+    fm.fontManager.addfont(_FONT_PATH)
+    plt.rcParams["font.family"] = "NanumGothic"
+else:
+    _FALLBACKS = ["AppleGothic", "Malgun Gothic", "NanumGothic", "sans-serif"]
+    _available = {f.name for f in fm.fontManager.ttflist}
+    plt.rcParams["font.family"] = next((f for f in _FALLBACKS if f in _available), "sans-serif")
+
 plt.rcParams["axes.unicode_minus"] = False
 
 

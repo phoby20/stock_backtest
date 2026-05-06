@@ -2,6 +2,9 @@
   "functions": {
     "app/api/backtest/route": {
       "maxDuration": 30
+    },
+    "api/py_backtest.py": {
+      "maxDuration": 60
     }
   }
 }

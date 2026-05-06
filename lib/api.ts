@@ -1,4 +1,5 @@
-const API_URL = ""
+const PY_ENDPOINT = "/api/py_backtest"
+const TS_ENDPOINT = "/api/backtest"
 
 export interface BacktestRequest {
   ticker:        string
@@ -57,11 +58,14 @@ export interface BacktestResponse {
 }
 
 export async function runBacktest(req: BacktestRequest): Promise<BacktestResponse> {
-  const res = await fetch(`${API_URL}/api/backtest`, {
-    method:  "POST",
-    headers: { "Content-Type": "application/json" },
-    body:    JSON.stringify(req),
-  })
+  const body = JSON.stringify(req)
+  const opts = { method: "POST", headers: { "Content-Type": "application/json" }, body }
+
+  // Python(matplotlib) 엔드포인트 우선 시도 → 실패 시 Next.js fallback
+  const pyRes = await fetch(PY_ENDPOINT, opts).catch(() => null)
+  if (pyRes?.ok) return pyRes.json()
+
+  const res = await fetch(TS_ENDPOINT, opts)
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: "서버 오류" }))
     throw new Error(err.detail ?? "백테스트 실패")

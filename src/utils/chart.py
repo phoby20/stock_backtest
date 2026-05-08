@@ -37,23 +37,33 @@ plt.rcParams.update({
 
 
 def _build_portfolio_series(result: BacktestResult) -> pd.Series:
+    """engine의 실제 거래 기록(수수료 포함)을 사용해 포트폴리오 시계열 생성"""
     df = result.signals_df
+
+    trade_by_date = {}
+    for t in result.trades:
+        trade_by_date[t.date] = t
+
     capital = result.initial_capital
     shares = 0.0
     portfolio = []
 
     for date, row in df.iterrows():
-        signal = row["Signal"]
-        price = row["Close"]
+        date_str = (
+            date.strftime("%Y-%m-%d %H:%M")
+            if (date.hour or date.minute)
+            else str(date.date())
+        )
+        trade = trade_by_date.get(date_str)
+        if trade:
+            if trade.action == "BUY":
+                capital = 0.0
+                shares = trade.shares
+            elif trade.action in ("SELL", "SELL(종료)"):
+                capital = trade.amount
+                shares = 0.0
 
-        if signal == "BUY" and shares == 0 and capital > 0:
-            shares = capital / price
-            capital = 0.0
-        elif signal == "SELL" and shares > 0:
-            capital = shares * price
-            shares = 0.0
-
-        portfolio.append((date, capital + shares * price))
+        portfolio.append((date, capital + shares * row["Close"]))
 
     return pd.Series(
         [v for _, v in portfolio],

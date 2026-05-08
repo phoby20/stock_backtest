@@ -35,8 +35,8 @@ def _safe(v):
         return None
 
 
-def _build_chart_data(result, commission_rate=0.0015):
-    """signals_df로 recharts용 chart_data 생성"""
+def _build_chart_data(result):
+    """signals_df + 실제 거래 기록으로 recharts용 chart_data 생성"""
     from src.indicators.macd import calculate_macd
 
     df = result.signals_df.copy()
@@ -46,23 +46,29 @@ def _build_chart_data(result, commission_rate=0.0015):
         df["MACD_Signal"] = signal_line
         df["MACD_Hist"]   = histogram
 
-    # 포트폴리오 가치 재계산
+    # 포트폴리오 가치: engine의 실제 거래 기록(수수료 포함) 사용
+    trade_by_date = {}
+    for t in result.trades:
+        trade_by_date[t.date] = t
+
     capital = result.initial_capital
     shares  = 0.0
     portfolio_values = []
-    for _, row in df.iterrows():
-        sig   = row.get("Signal", "HOLD")
-        price = row["Close"]
-        if sig == "BUY" and shares == 0 and capital > 0:
-            comm   = capital * commission_rate
-            shares = (capital - comm) / price
-            capital = 0.0
-        elif sig == "SELL" and shares > 0:
-            gross   = shares * price
-            comm    = gross * commission_rate
-            capital = gross - comm
-            shares  = 0.0
-        portfolio_values.append(round(capital + shares * price, 2))
+    for date, row in df.iterrows():
+        date_str = (
+            date.strftime("%Y-%m-%d %H:%M")
+            if (date.hour or date.minute)
+            else str(date.date())
+        )
+        trade = trade_by_date.get(date_str)
+        if trade:
+            if trade.action == "BUY":
+                capital = 0.0
+                shares = trade.shares
+            elif trade.action in ("SELL", "SELL(종료)"):
+                capital = trade.amount
+                shares = 0.0
+        portfolio_values.append(round(capital + shares * row["Close"], 2))
 
     data = []
     for i, (date, row) in enumerate(df.iterrows()):

@@ -5,10 +5,11 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QColor
 
-from gui.backtest_tab import BacktestTab
-from gui.monitor_tab  import MonitorTab
-from gui.trade_tab    import TradeTab
-from gui.styles       import DARK_STYLE
+from gui.backtest_tab  import BacktestTab
+from gui.monitor_tab   import MonitorTab
+from gui.trade_tab     import TradeTab
+from gui.settings_tab  import SettingsTab
+from gui.styles        import DARK_STYLE
 
 
 class MainWindow(QMainWindow):
@@ -80,9 +81,11 @@ class MainWindow(QMainWindow):
         bt = BacktestTab()
         mo = MonitorTab()
         tr = TradeTab()
+        st = SettingsTab()
 
         tabs.addTab(bt, "  📊  백테스트  ")
         tabs.addTab(mo, "  👁  실시간 감시  ")
         tabs.addTab(tr, "  🤖  자동매매  ")
+        tabs.addTab(st, "  ⚙️  설정  ")
 
         root.addWidget(tabs)

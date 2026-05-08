@@ -75,7 +75,7 @@ class KiwoomAPI(QAxWidget):
         self._tr_request("opw00018", "계좌평가잔고내역요청", "0201")
         return self._tr_data.copy()
 
-    def get_deposit(self, account: str) -> int:
+    def get_deposit(self, account: str) -> float:
         """주문 가능 예수금 조회"""
         self.dynamicCall("SetInputValue(QString, QString)", "계좌번호", account)
         self.dynamicCall("SetInputValue(QString, QString)", "비밀번호", "")
@@ -83,7 +83,7 @@ class KiwoomAPI(QAxWidget):
         self.dynamicCall("SetInputValue(QString, QString)", "조회구분", "2")
         self._tr_request("opw00001", "예수금상세현황요청", "0101")
         deposit = self._tr_data.get("주문가능금액", "0")
-        return int(deposit.replace(",", "")) if deposit else 0
+        return float(int(deposit.replace(",", "")) if deposit else 0)
 
     # ── 주가 데이터 조회 ───────────────────────────────────────
     def get_ohlcv(self, ticker: str, count: int = 100) -> list[dict]:
@@ -95,28 +95,30 @@ class KiwoomAPI(QAxWidget):
         self._tr_request("opt10081", "주식일봉차트조회요청", "0301")
         return self._tr_data.get("ohlcv", [])
 
-    def get_current_price(self, ticker: str) -> int:
+    def get_current_price(self, ticker: str) -> float:
         """현재가 단건 조회"""
         self.dynamicCall("SetInputValue(QString, QString)", "종목코드", ticker)
         self._tr_request("opt10001", "주식기본정보요청", "0101")
         price = self._tr_data.get("현재가", "0")
-        return abs(int(price))
+        return float(abs(int(price)))
 
     # ── 주문 ───────────────────────────────────────────────────
     def send_order(
         self,
         account: str,
         ticker: str,
-        order_type: int,
+        order_type: str,       # "BUY" 또는 "SELL"
         quantity: int,
         price: int = 0,
         price_type: str = PRICE_MARKET,
-    ) -> int:
+    ) -> bool:
         """
-        주문 전송. 반환값 0 = 성공.
+        주문 전송. True = 성공.
+        order_type: "BUY" (매수) / "SELL" (매도)
         price_type: PRICE_MARKET(시장가) / PRICE_LIMIT(지정가)
         """
-        action = "매수" if order_type == ORDER_BUY else "매도"
+        kiwoom_type = ORDER_BUY if order_type == "BUY" else ORDER_SELL
+        action = "매수" if order_type == "BUY" else "매도"
         logger.info(f"[주문] {action} | {ticker} | {quantity}주 | 가격:{price if price else '시장가'}")
         result = self.dynamicCall(
             "SendOrder(QString, QString, QString, int, QString, int, int, QString, QString)",
@@ -124,7 +126,7 @@ class KiwoomAPI(QAxWidget):
                 f"RSI_MACD_{action}",  # 주문명
                 "0101",                # 화면번호
                 account,
-                order_type,
+                kiwoom_type,
                 ticker,
                 quantity,
                 price,
@@ -134,7 +136,7 @@ class KiwoomAPI(QAxWidget):
         )
         if result != 0:
             logger.error(f"[주문 실패] 오류코드: {result}")
-        return result
+        return result == 0
 
     # ── 실시간 구독 ────────────────────────────────────────────
     def subscribe_real(self, ticker: str, callback: Callable[[str, float], None]):

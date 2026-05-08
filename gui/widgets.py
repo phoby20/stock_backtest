@@ -9,11 +9,11 @@ def form_row(label_text: str, widget, hint: str = "") -> QWidget:
     container.setStyleSheet("background: transparent;")
     vl = QVBoxLayout(container)
     vl.setContentsMargins(0, 0, 0, 0)
-    vl.setSpacing(3)
+    vl.setSpacing(6)
 
     lbl = QLabel(label_text)
     lbl.setStyleSheet(
-        "color:#8b949e; font-size:11px; font-weight:600;"
+        "color:#8b949e; font-size:12px; font-weight:600;"
         "letter-spacing:0.5px; background:transparent;"
     )
     vl.addWidget(lbl)
@@ -35,7 +35,7 @@ def hline() -> QFrame:
     return line
 
 
-def make_scroll_sidebar(inner: QWidget, min_width=220, max_width=340) -> QScrollArea:
+def make_scroll_sidebar(inner: QWidget, min_width=260, max_width=400) -> QScrollArea:
     """사이드바를 스크롤 가능한 영역으로 감쌈"""
     scroll = QScrollArea()
     scroll.setWidget(inner)

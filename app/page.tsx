@@ -55,9 +55,9 @@ export default function HomePage() {
 
         {/* 사이드바 (데스크톱) / 접힘 패널 (모바일) */}
         <aside className={[
-          "bg-gh-surface border-gh-border overflow-y-auto shrink-0",
-          "lg:w-72 lg:border-r",
-          formOpen ? "border-b lg:border-b-0" : "hidden lg:block",
+          "bg-gh-surface border-gh-border overflow-y-auto",
+          "lg:w-72 lg:border-r lg:shrink-0 lg:flex-none",
+          formOpen ? "flex-1 border-b lg:border-b-0" : "hidden lg:block",
         ].join(" ")}>
           <div className="p-4">
             <BacktestForm onSubmit={handleSubmit} loading={loading} />

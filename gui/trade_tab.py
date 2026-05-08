@@ -69,17 +69,19 @@ class TradeWorker(QThread):
                 account = load_secret("kiwoom_account")
 
             self._trader = LiveTrader(
-                broker      = broker,
-                ticker      = p["ticker"],
-                account     = account,
-                rsi_period  = p["rsi_period"],
-                oversold    = p["oversold"],
-                overbought  = p["overbought"],
-                macd_fast   = p["macd_fast"],
-                macd_slow   = p["macd_slow"],
-                macd_signal = p["macd_signal"],
-                buy_ratio   = p["buy_ratio"],
-                paper       = p["paper"],
+                broker         = broker,
+                ticker         = p["ticker"],
+                account        = account,
+                rsi_period     = p["rsi_period"],
+                oversold       = p["oversold"],
+                overbought     = p["overbought"],
+                macd_fast      = p["macd_fast"],
+                macd_slow      = p["macd_slow"],
+                macd_signal    = p["macd_signal"],
+                buy_ratio      = p["buy_ratio"],
+                paper          = p["paper"],
+                slack_token    = load_secret("slack_token"),
+                slack_channel  = load_secret("slack_channel"),
             )
             self._trader.run()
         except Exception as e:

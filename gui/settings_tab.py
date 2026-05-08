@@ -157,6 +157,33 @@ class SettingsTab(QWidget):
 
         vl.addWidget(kiwoom_card)
 
+        # ── Slack 카드 ────────────────────────────────────────
+        slack_card = _Card()
+
+        slack_title = QLabel("Slack 알림")
+        slack_title.setStyleSheet(
+            "color:#e6edf3; font-size:14px; font-weight:bold; background:transparent;"
+        )
+        slack_card.add(slack_title)
+
+        slack_desc = QLabel(
+            "Bot Token을 입력하면 자동매매 시작/종료·장 개시/마감·\n"
+            "1분 간격 현황·매수/매도 체결 알림이 Slack으로 전송됩니다.\n"
+            "api.slack.com → 앱 생성 → OAuth & Permissions → chat:write 권한 추가 후 발급"
+        )
+        slack_desc.setStyleSheet("color:#8b949e; font-size:11px; background:transparent;")
+        slack_desc.setWordWrap(True)
+        slack_card.add(slack_desc)
+
+        self.slackTokenRow = _PasswordRow("xoxb-...")
+        slack_card.add(form_row("Bot Token", self.slackTokenRow))
+
+        self.slackChannelEdit = QLineEdit()
+        self.slackChannelEdit.setPlaceholderText("예: #trading-alert  또는  C0123456789")
+        slack_card.add(form_row("채널", self.slackChannelEdit))
+
+        vl.addWidget(slack_card)
+
         # ── 저장 버튼 ─────────────────────────────────────────
         btn_row = QHBoxLayout()
         btn_row.setAlignment(Qt.AlignLeft)
@@ -185,12 +212,16 @@ class SettingsTab(QWidget):
         self.kisAppSecretRow.setText(load_secret("kis_app_secret"))
         self.kisAccountEdit.setText(load_secret("kis_account"))
         self.kiwoomAccountEdit.setText(load_secret("kiwoom_account"))
+        self.slackTokenRow.setText(load_secret("slack_token"))
+        self.slackChannelEdit.setText(load_secret("slack_channel"))
 
     def _save(self):
         save_secret("kis_app_key",    self.kisAppKeyEdit.text().strip())
         save_secret("kis_app_secret", self.kisAppSecretRow.text().strip())
         save_secret("kis_account",    self.kisAccountEdit.text().strip())
         save_secret("kiwoom_account", self.kiwoomAccountEdit.text().strip())
+        save_secret("slack_token",    self.slackTokenRow.text().strip())
+        save_secret("slack_channel",  self.slackChannelEdit.text().strip())
 
         self.statusLabel.setStyleSheet("color:#00C853; font-size:12px; background:transparent;")
         self.statusLabel.setText("  저장되었습니다.")

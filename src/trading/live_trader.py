@@ -20,6 +20,7 @@ from src.indicators.macd import calculate_macd, detect_golden_cross, detect_dead
 from src.utils.market_hours import (
     get_session, session_label, et_clock_str, is_market_open,
 )
+from src.utils.slack import send as slack_send
 from config import Config
 
 logger = logging.getLogger(__name__)
@@ -39,6 +40,8 @@ class LiveTrader:
         macd_signal: int = 9,
         buy_ratio: float = Config.BUY_RATIO,
         paper: bool = False,
+        slack_token: str = "",
+        slack_channel: str = "",
     ):
         self.broker    = broker
         self.ticker    = ticker
@@ -49,8 +52,10 @@ class LiveTrader:
         self.macd_fast   = macd_fast
         self.macd_slow   = macd_slow
         self.macd_signal = macd_signal
-        self.buy_ratio   = buy_ratio
-        self.paper       = paper
+        self.buy_ratio       = buy_ratio
+        self.paper           = paper
+        self._slack_token    = slack_token.strip()
+        self._slack_channel  = slack_channel.strip()
 
         self._min_bars = max(rsi_period, macd_slow + macd_signal) + 5
         self._prices: deque[float] = deque(maxlen=self._min_bars + 50)
@@ -62,6 +67,10 @@ class LiveTrader:
         self._last_session: Optional[str] = None   # 세션 변경 감지용
         self._running     = False
         self._stop_event  = threading.Event()      # 즉시 중단용
+
+    # ── Slack 알림 ─────────────────────────────────────────────
+    def _notify(self, text: str):
+        slack_send(self._slack_token, self._slack_channel, text)
 
     # ── 초기화 ─────────────────────────────────────────────────
     def _load_history(self):
@@ -87,10 +96,18 @@ class LiveTrader:
         clock = et_clock_str()
         if session == "market":
             logger.info(f"[장 개시] {label}  ({clock})  ▶ 자동매매 활성")
+            self._notify(
+                f"🟢 *[장 개시]* 정규장 시작 ({clock})\n"
+                f"종목: {self.ticker} | 자동매매 활성"
+            )
         elif session in ("pre_market", "after_hours"):
             logger.info(f"[{label}]  ({clock})  — 시간 외 거래 감시 중 (매매 중단)")
         elif session == "closed":
             logger.info(f"[장 종료] {label}  ({clock})")
+            self._notify(
+                f"🔴 *[장 종료]* 정규장 마감 ({clock})\n"
+                f"종목: {self.ticker} | 자동매매 중단"
+            )
         elif session == "holiday":
             logger.info(f"[휴장] {label}  ({clock})")
 
@@ -137,6 +154,10 @@ class LiveTrader:
         self._position   = True
         self._hold_qty   = qty
         self._hold_price = price
+        self._notify(
+            f"🔔 *매수 체결{'(모의)' if self.paper else ''}* {self.ticker}\n"
+            f"${price:,.2f} × {qty}주 = ${qty * price:,.2f} | {et_clock_str()}"
+        )
 
     def _execute_sell(self, price: float):
         qty = self._hold_qty
@@ -156,6 +177,10 @@ class LiveTrader:
         self._position   = False
         self._hold_qty   = 0
         self._hold_price = 0.0
+        self._notify(
+            f"💰 *매도 체결{'(모의)' if self.paper else ''}* {self.ticker}\n"
+            f"${price:,.2f} × {qty}주 | 손익 ${profit:+,.2f} ({profit_pct:+.2f}%) | {et_clock_str()}"
+        )
 
     # ── 실시간 체결 콜백 ───────────────────────────────────────
     def _on_price(self, ticker: str, price: float):
@@ -176,23 +201,38 @@ class LiveTrader:
         # ── 정규장 → 신호 계산 & 매매 ─────────────────────────
         signal = self._compute_signal()
 
+        rsi_num = None
         rsi_val = ""
         if len(self._prices) >= self._min_bars:
-            ps = pd.Series(list(self._prices))
-            rsi_val = f"  RSI:{calculate_rsi(ps, self.rsi_period).iloc[-1]:.1f}"
+            ps      = pd.Series(list(self._prices))
+            rsi_num = calculate_rsi(ps, self.rsi_period).iloc[-1]
+            rsi_val = f"  RSI:{rsi_num:.1f}"
 
         logger.info(
             f"[{ts}] {ticker} ${price:.2f}  |  신호:{signal}{rsi_val}  ({clock})"
         )
 
-        if signal == self._last_signal:
-            return
-        self._last_signal = signal
+        if signal != self._last_signal:
+            self._last_signal = signal
+            if signal == "BUY" and not self._position:
+                self._execute_buy(price)
+            elif signal == "SELL" and self._position:
+                self._execute_sell(price)
 
-        if signal == "BUY" and not self._position:
-            self._execute_buy(price)
-        elif signal == "SELL" and self._position:
-            self._execute_sell(price)
+        # ── 1분 간격 Slack 상태 알림 ───────────────────────────
+        rsi_str = f" | RSI {rsi_num:.1f}" if rsi_num is not None else ""
+        if self._position:
+            unrealized     = (price - self._hold_price) * self._hold_qty
+            unrealized_pct = (price / self._hold_price - 1) * 100
+            pos_str = (
+                f"보유 {self._hold_qty}주 @${self._hold_price:.2f}"
+                f"  ({unrealized:+,.2f}, {unrealized_pct:+.2f}%)"
+            )
+        else:
+            pos_str = "포지션 없음"
+        self._notify(
+            f"📊 *{ticker}* ${price:.2f}{rsi_str} | 신호:{signal} | {clock}\n{pos_str}"
+        )
 
     # ── 실행 진입점 ────────────────────────────────────────────
     def run(self):
@@ -209,6 +249,13 @@ class LiveTrader:
         logger.info(f"  모드: {'모의매매 (주문 미전송)' if self.paper else '실제매매'}")
         logger.info(f"  현재 ET: {et_clock_str()}")
         logger.info("=" * 60)
+
+        self._notify(
+            f"🚀 *자동매매 시작*\n"
+            f"종목: {self.ticker} | 계좌: {self.account}\n"
+            f"전략: RSI({self.rsi_period}) + MACD({self.macd_fast}/{self.macd_slow}/{self.macd_signal})\n"
+            f"모드: {'모의매매' if self.paper else '실제매매'} | ET: {et_clock_str()}"
+        )
 
         session = get_session()
         self._log_session_change(session)
@@ -239,6 +286,10 @@ class LiveTrader:
         finally:
             self.broker.unsubscribe_real(self.ticker)
             logger.info("자동매매 종료")
+            self._notify(
+                f"⛔ *자동매매 종료*\n"
+                f"종목: {self.ticker} | ET: {et_clock_str()}"
+            )
 
     def stop(self):
         self._running = False

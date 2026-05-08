@@ -63,7 +63,11 @@ export async function runBacktest(req: BacktestRequest): Promise<BacktestRespons
 
   // Python(matplotlib) 엔드포인트 우선 시도 → 실패 시 Next.js fallback
   const pyRes = await fetch(PY_ENDPOINT, opts).catch(() => null)
-  if (pyRes?.ok) return pyRes.json()
+  if (pyRes?.ok) {
+    // Python 라우트에는 DB 저장이 없으므로 별도 이력 저장 호출
+    fetch("/api/history", opts).catch(() => {})
+    return pyRes.json()
+  }
 
   const res = await fetch(TS_ENDPOINT, opts)
   if (!res.ok) {

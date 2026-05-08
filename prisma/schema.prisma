@@ -10,7 +10,6 @@ datasource db {
 model SearchHistory {
   id          String   @id @default(cuid())
   clerkUserId String
-
   ticker      String
   candle      String
   strategy    String
@@ -22,7 +21,6 @@ model SearchHistory {
   macdSignal  Int
   rsiLookback Int
   capital     Float
-
   createdAt   DateTime @default(now())
 
   @@index([clerkUserId])

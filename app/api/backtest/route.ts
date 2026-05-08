@@ -386,8 +386,8 @@ export async function POST(req: NextRequest) {
 
     // ── 검색 이력 DB 저장 (JST = UTC+9) ─────────────────────
     const jstNow = new Date(Date.now() + 9 * 60 * 60 * 1000);
-    await getDb()
-      .searchHistory.create({
+    try {
+      await getDb().searchHistory.create({
         data: {
           clerkUserId: userId,
           ticker: ticker.toUpperCase(),
@@ -403,8 +403,11 @@ export async function POST(req: NextRequest) {
           capital,
           createdAt: jstNow,
         },
-      })
-      .catch((e: unknown) => console.error("검색 이력 저장 실패:", e));
+      });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error("[검색 이력 저장 실패]", msg);
+    }
 
     return NextResponse.json({
       ticker: ticker.toUpperCase(),

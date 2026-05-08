@@ -436,7 +436,7 @@ class BacktestTab(QWidget):
         self.candleCombo = QComboBox()
         for _, label, _ in CANDLE_OPTIONS:
             self.candleCombo.addItem(label)
-        self.candleCombo.setCurrentIndex(5)
+        self.candleCombo.setCurrentIndex(1)
         self.candleCombo.currentIndexChanged.connect(self._on_candle_changed)
         gv.addWidget(form_row("봉 단위", self.candleCombo))
 

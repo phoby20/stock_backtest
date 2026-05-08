@@ -55,7 +55,7 @@ export default function BacktestForm({ onSubmit, loading }: Props) {
   const isLoggedIn = !!isSignedIn;
 
   const [ticker, setTicker] = useState("SOXL");
-  const [candle, setCandle] = useState("1d");
+  const [candle, setCandle] = useState("5m");
   const [capital, setCapital] = useState(1_000);
   const [strategy, setStrategy] = useState("rsi-macd");
   const [rsiPeriod, setRsiPeriod] = useState(14);

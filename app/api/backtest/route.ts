@@ -384,7 +384,8 @@ export async function POST(req: NextRequest) {
     const strategyLabel =
       strategy === "rsi-macd" ? `RSI+MACD (lookback=${rsi_lookback})` : "RSI";
 
-    // ── 검색 이력 DB 저장 ────────────────────────────────────
+    // ── 검색 이력 DB 저장 (JST = UTC+9) ─────────────────────
+    const jstNow = new Date(Date.now() + 9 * 60 * 60 * 1000);
     await getDb()
       .searchHistory.create({
         data: {
@@ -400,6 +401,7 @@ export async function POST(req: NextRequest) {
           macdSignal: macd_signal,
           rsiLookback: rsi_lookback,
           capital,
+          createdAt: jstNow,
         },
       })
       .catch((e: unknown) => console.error("검색 이력 저장 실패:", e));
